@@ -1,8 +1,9 @@
+import {pcpSlugs} from "@/lib/pcp-navigation";
 import type { MetadataRoute } from "next";
 import { locales, pages } from "@/lib/site-content";
 
 const baseUrl = "https://www.pcpump.com";
-const lastModified = new Date("2026-08-22T00:00:00.000Z");
+const lastModified = new Date("2026-10-17T16:39:43.000Z");
 
 function languageAlternates(slug?: string) {
   const suffix = slug ? `/${slug}` : "";
@@ -24,12 +25,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const detailPages: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    pages.map((page) => ({
-      url: `${baseUrl}/${locale}/${page.slug}`,
+    [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])].map((slug) => ({
+      url: `${baseUrl}/${locale}/${slug}`,
       lastModified,
       changeFrequency: "monthly" as const,
-      priority: page.slug === "products" ? 0.9 : 0.7,
-      alternates: { languages: languageAlternates(page.slug) },
+      priority: slug === "products" ? 0.9 : 0.7,
+      alternates: { languages: languageAlternates(slug) },
     })),
   );
 

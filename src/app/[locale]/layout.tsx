@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SiteEventTracker } from "@/components/site-event-tracker";
+import {pcpShareImage} from '@/lib/pcp-metadata';
 import { isLocale, locales } from "@/lib/site-content";
 import "@/app/globals.css";
+import "@/app/engineering.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pcpump.com"),
@@ -17,9 +20,9 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "PCPUMP.COM",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "PCPUMP.COM oilfield equipment" }],
+    images: [{ url: pcpShareImage, width: 1200, height: 630, alt: "PCPUMP artificial lift systems and technical reference" }],
   },
-  twitter: { card: "summary_large_image", images: ["/opengraph-image"] },
+  twitter: { card: "summary_large_image", images: [pcpShareImage] },
 };
 
 export function generateStaticParams() {
@@ -40,6 +43,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <SiteHeader locale={locale} />
+        <SiteEventTracker enabled={Boolean(process.env.INQUIRY_RECEIVER_URL)} />
         {children}
         <SiteFooter locale={locale} />
       </body>

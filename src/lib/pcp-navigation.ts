@@ -1,0 +1,2 @@
+export const pcpSlugs = ['pcp-systems', 'downhole-pumps', 'pcp-elastomers', 'surface-drive-pcp', 'engineering-inquiry'] as const;
+export const pcpTitles: Record<string, string> = { 'pcp-systems': 'Progressive cavity pump systems', 'downhole-pumps': 'Downhole PC pumps', 'pcp-elastomers': 'Elastomer selection', 'surface-drive-pcp': 'Surface driveheads', 'engineering-inquiry': 'Engineering inquiry' };

@@ -29,11 +29,15 @@ export function isIndexable(locale: Locale, slug = "") {
  * ES/RU owners are the translated /es|ru/progressive-cavity-pumps pages; /es|ru/pcp-systems are
  * untranslated (noindex) and stay out of the cluster.
  */
+/** Cross-slug hreflang clusters (paths without host). hreflang output and the language switcher both use these. */
+const crossSlugClusters: Record<string, string>[] = [
+  { en: "/en/pcp-systems", es: "/es/progressive-cavity-pumps", ru: "/ru/progressive-cavity-pumps" },
+];
 const pcpOverviewCluster = {
-  en: `${baseUrl}/en/pcp-systems`,
-  es: `${baseUrl}/es/progressive-cavity-pumps`,
-  ru: `${baseUrl}/ru/progressive-cavity-pumps`,
-  "x-default": `${baseUrl}/en/pcp-systems`,
+  en: `${baseUrl}${crossSlugClusters[0].en}`,
+  es: `${baseUrl}${crossSlugClusters[0].es}`,
+  ru: `${baseUrl}${crossSlugClusters[0].ru}`,
+  "x-default": `${baseUrl}${crossSlugClusters[0].en}`,
 };
 
 /** Routes that permanently redirect elsewhere: never rendered as indexable, never in the sitemap. */
@@ -43,6 +47,14 @@ export const redirectedRoutes: Record<string, string> = {
 
 export function isRedirected(locale: Locale, slug = "") {
   return `/${locale}${slug ? `/${slug}` : ""}` in redirectedRoutes;
+}
+
+/** Language-switcher target: the cluster sibling when the current page is in a cross-slug cluster. */
+export function switcherHref(currentPath: string, targetLocale: Locale | string, slug = "") {
+  const path = currentPath.replace(/\/+$/, "") || "/";
+  const cluster = crossSlugClusters.find((c) => Object.values(c).includes(path));
+  if (cluster?.[targetLocale]) return cluster[targetLocale];
+  return localHref(targetLocale, slug);
 }
 
 /** Internal href that never points at a redirecting URL. */

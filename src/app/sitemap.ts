@@ -1,12 +1,12 @@
 import {pcpSlugs} from "@/lib/pcp-navigation";
 import type { MetadataRoute } from "next";
 import { locales, pages } from "@/lib/site-content";
-import { baseUrl, isIndexable, languageAlternates } from "@/lib/seo";
+import { baseUrl, isIndexable, isRedirected, languageAlternates } from "@/lib/seo";
 
 const lastModified = new Date("2026-10-17T16:39:43.000Z");
 
 function entry(locale: (typeof locales)[number], slug: string, priority: number, changeFrequency: "weekly" | "monthly") {
-  const languages = languageAlternates(slug);
+  const languages = languageAlternates(locale, slug);
   return {
     url: `${baseUrl}/${locale}${slug ? `/${slug}` : ""}`,
     lastModified,
@@ -18,10 +18,10 @@ function entry(locale: (typeof locales)[number], slug: string, priority: number,
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const slugs = [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])];
-  // Untranslated ES/RU routes are noindex and excluded (see src/lib/seo.ts).
+  // Untranslated ES/RU routes (noindex) and redirected routes are excluded (see src/lib/seo.ts).
   const homes = locales.filter((locale) => isIndexable(locale)).map((locale) => entry(locale, "", 1, "weekly"));
   const detailPages = locales.flatMap((locale) =>
-    slugs.filter((slug) => isIndexable(locale, slug)).map((slug) => entry(locale, slug, slug === "products" ? 0.9 : 0.7, "monthly")),
+    slugs.filter((slug) => isIndexable(locale, slug) && !isRedirected(locale, slug)).map((slug) => entry(locale, slug, slug === "products" ? 0.9 : 0.7, "monthly")),
   );
   return [...homes, ...detailPages];
 }

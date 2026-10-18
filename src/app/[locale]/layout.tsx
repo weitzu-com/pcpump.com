@@ -11,15 +11,15 @@ import "@/app/engineering.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pcpump.com"),
-  title: { default: "PCPUMP.COM", template: "%s | PCPUMP.COM" },
+  title: { default: "PCPUMP", template: "%s | PCPUMP" },
   description: "Oilfield production, drilling, intervention and tubular equipment for global projects.",
-  applicationName: "PCPUMP.COM",
-  creator: "PCPUMP.COM",
-  publisher: "PCPUMP.COM",
+  applicationName: "PCPUMP",
+  creator: "PCPUMP",
+  publisher: "PCPUMP",
   category: "Industrial equipment",
   formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
-    siteName: "PCPUMP.COM",
+    siteName: "PCPUMP",
     type: "website",
     images: [{ url: pcpShareImage, width: 1200, height: 630, alt: "PCPUMP artificial lift systems and technical reference" }],
   },

@@ -91,11 +91,15 @@ export function localizedSeo(locale: Locale, slug = ""): Pick<Metadata, "alterna
 export const organizationId = `${baseUrl}/#organization`;
 
 /** Organization data limited to facts already published on the site. */
+/** Brand name used in titles, og:site_name and structured data. */
+export const brandName = "PCPUMP";
+
 export const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": organizationId,
-  name: "PCPUMP.COM",
+  name: brandName,
+  alternateName: ["PCPUMP.COM", "pcpump.com"],
   url: baseUrl,
   logo: `${baseUrl}/apple-icon`,
   email: "sales@pcpump.com",

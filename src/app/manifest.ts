@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "PCPUMP.COM",
-    short_name: "PCPUMP.COM",
+    name: "PCPUMP",
+    short_name: "PCPUMP",
     description: "Oilfield pumping, production, drilling and service equipment.",
     start_url: "/en",
     display: "standalone",

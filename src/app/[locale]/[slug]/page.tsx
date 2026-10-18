@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const searchSlug=slug;
   if(pcpSearchMeta[searchSlug]){
     const meta=pcpSearchMeta[searchSlug],url=`${baseUrl}/${locale}/${searchSlug}`;
-    return {title:meta.title,description:meta.description,...localizedSeo(locale,searchSlug),openGraph:{title:`${meta.title} | PCPUMP.COM`,description:meta.description,url,siteName:'PCPUMP.COM',type:'website',images:[{url:pcpShareImage,alt:'PCPUMP technical reference and artificial lift equipment'}]},twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP.COM`,description:meta.description,images:[pcpShareImage]}};
+    return {title:meta.title,description:meta.description,...localizedSeo(locale,searchSlug),openGraph:{title:`${meta.title} | PCPUMP`,description:meta.description,url,siteName:'PCPUMP',type:'website',images:[{url:pcpShareImage,alt:'PCPUMP technical reference and artificial lift equipment'}]},twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP`,description:meta.description,images:[pcpShareImage]}};
   }
   if (!page) return {};
   const content = localizePage(page, locale);
@@ -38,8 +38,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: content.title,
     description: content.meta,
     ...localizedSeo(locale, slug),
-    openGraph: { title: `${content.title} | PCPUMP.COM`, description: content.meta, url: `${baseUrl}${path}`, locale, images: [{ url: content.image }] },
-    twitter: { card: "summary_large_image", title: `${content.title} | PCPUMP.COM`, description: content.meta, images: [content.image] },
+    openGraph: { title: `${content.title} | PCPUMP`, description: content.meta, url: `${baseUrl}${path}`, locale, siteName: "PCPUMP", type: "website", images: [{ url: content.image }] },
+    twitter: { card: "summary_large_image", title: `${content.title} | PCPUMP`, description: content.meta, images: [content.image] },
   };
 }
 
@@ -78,7 +78,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
     name: content.title,
     description: content.meta,
     image: `${baseUrl}${content.image}`,
-    brand: { "@type": "Brand", name: "PCPUMP.COM" },
+    brand: { "@type": "Brand", name: "PCPUMP" },
     additionalProperty: content.facts.map((fact) => ({ "@type": "PropertyValue", name: fact.label, value: fact.value })),
   };
   const jsonLd = {

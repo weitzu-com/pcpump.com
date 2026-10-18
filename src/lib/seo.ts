@@ -7,10 +7,9 @@ export const baseUrl = "https://www.pcpump.com";
  * Routes whose ES/RU versions still render English body copy (checked against the
  * built pages on 2026-10-18). Until a reviewed translation exists, the ES/RU
  * versions are kept out of the sitemap and hreflang clusters and served noindex,follow.
- * "" is the locale home page.
+ * The locale home page ("") is handled per locale by untranslatedHomeLocales.
  */
 export const untranslatedSlugs = new Set<string>([
-  "",
   "pcp-systems",
   "downhole-pumps",
   "pcp-elastomers",
@@ -19,7 +18,11 @@ export const untranslatedSlugs = new Set<string>([
   "technical-resources",
 ]);
 
+/** Locale home pages kept noindex and out of the home hreflang cluster (ES home re-indexed 2026-10-18). */
+export const untranslatedHomeLocales = new Set<string>(["ru"]);
+
 export function isIndexable(locale: Locale, slug = "") {
+  if (slug === "") return !untranslatedHomeLocales.has(locale);
   return locale === "en" || !untranslatedSlugs.has(slug);
 }
 
@@ -67,6 +70,12 @@ export function localHref(locale: Locale | string, slug = "") {
 export function languageAlternates(locale: Locale, slug = ""): Record<string, string> | undefined {
   if ((locale === "en" && slug === "pcp-systems") || (locale !== "en" && slug === "progressive-cavity-pumps")) return pcpOverviewCluster;
   if (slug === "progressive-cavity-pumps" || slug === "pcp-systems") return undefined;
+  if (slug === "") {
+    // Home cluster: only indexable, self-canonical locale homes (currently en + es).
+    const homes: Record<string, string> = {};
+    for (const l of ["en", "es", "ru"] as Locale[]) if (isIndexable(l)) homes[l] = `${baseUrl}/${l}`;
+    return { ...homes, "x-default": `${baseUrl}/en` };
+  }
   const suffix = slug ? `/${slug}` : "";
   if (untranslatedSlugs.has(slug)) return undefined; // English only: no cluster to declare
   return {
@@ -91,11 +100,15 @@ export function localizedSeo(locale: Locale, slug = ""): Pick<Metadata, "alterna
 export const organizationId = `${baseUrl}/#organization`;
 
 /** Organization data limited to facts already published on the site. */
+/** Brand name used in titles, og:site_name and structured data. */
+export const brandName = "PCPUMP";
+
 export const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": organizationId,
-  name: "PCPUMP.COM",
+  name: brandName,
+  alternateName: ["PCPUMP.COM", "pcpump.com"],
   url: baseUrl,
   logo: `${baseUrl}/apple-icon`,
   email: "sales@pcpump.com",

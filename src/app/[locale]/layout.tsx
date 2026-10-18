@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteEventTracker } from "@/components/site-event-tracker";
 import {pcpShareImage} from '@/lib/pcp-metadata';
 import { isLocale, locales } from "@/lib/site-content";
+import { jsonLdScript, organizationJsonLd } from "@/lib/seo";
 import "@/app/globals.css";
 import "@/app/engineering.css";
 
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(organizationJsonLd)} />
         <SiteHeader locale={locale} />
         <SiteEventTracker enabled={Boolean(process.env.INQUIRY_RECEIVER_URL)} />
         {children}

@@ -1,38 +1,27 @@
 import {pcpSlugs} from "@/lib/pcp-navigation";
 import type { MetadataRoute } from "next";
 import { locales, pages } from "@/lib/site-content";
+import { baseUrl, isIndexable, languageAlternates } from "@/lib/seo";
 
-const baseUrl = "https://www.pcpump.com";
 const lastModified = new Date("2026-10-17T16:39:43.000Z");
 
-function languageAlternates(slug?: string) {
-  const suffix = slug ? `/${slug}` : "";
+function entry(locale: (typeof locales)[number], slug: string, priority: number, changeFrequency: "weekly" | "monthly") {
+  const languages = languageAlternates(slug);
   return {
-    en: `${baseUrl}/en${suffix}`,
-    es: `${baseUrl}/es${suffix}`,
-    ru: `${baseUrl}/ru${suffix}`,
-    "x-default": `${baseUrl}/en${suffix}`,
+    url: `${baseUrl}/${locale}${slug ? `/${slug}` : ""}`,
+    lastModified,
+    changeFrequency,
+    priority,
+    ...(languages ? { alternates: { languages } } : {}),
   };
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const homes: MetadataRoute.Sitemap = locales.map((locale) => ({
-    url: `${baseUrl}/${locale}`,
-    lastModified,
-    changeFrequency: "weekly",
-    priority: 1,
-    alternates: { languages: languageAlternates() },
-  }));
-
-  const detailPages: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])].map((slug) => ({
-      url: `${baseUrl}/${locale}/${slug}`,
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: slug === "products" ? 0.9 : 0.7,
-      alternates: { languages: languageAlternates(slug) },
-    })),
+  const slugs = [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])];
+  // Untranslated ES/RU routes are noindex and excluded (see src/lib/seo.ts).
+  const homes = locales.filter((locale) => isIndexable(locale)).map((locale) => entry(locale, "", 1, "weekly"));
+  const detailPages = locales.flatMap((locale) =>
+    slugs.filter((slug) => isIndexable(locale, slug)).map((slug) => entry(locale, slug, slug === "products" ? 0.9 : 0.7, "monthly")),
   );
-
   return [...homes, ...detailPages];
 }

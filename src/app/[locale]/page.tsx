@@ -5,6 +5,7 @@ import {pcpShareImage} from '@/lib/pcp-metadata';
 import { notFound } from "next/navigation";
 
 import { isLocale, type Locale } from "@/lib/site-content";
+import { jsonLdScript, localizedSeo, organizationId } from "@/lib/seo";
 
 const baseUrl = "https://www.pcpump.com";
 const homeMeta: Record<Locale, { title: string; description: string }> = {
@@ -20,10 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: meta.title,
     description: meta.description,
-    alternates: {
-      canonical: `${baseUrl}/${locale}`,
-      languages: { en: `${baseUrl}/en`, es: `${baseUrl}/es`, ru: `${baseUrl}/ru`, "x-default": `${baseUrl}/en` },
-    },
+    ...localizedSeo(locale),
     openGraph: { title: `${meta.title} | PCPUMP.COM`, description: meta.description, url: `${baseUrl}/${locale}`, locale,siteName:'PCPUMP.COM',type:'website',images:[{url:pcpShareImage,width:1200,height:630,alt:'PCP systems. Conditions first.'}] },
     twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP.COM`,description:meta.description,images:[pcpShareImage]},
   };
@@ -32,5 +30,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function LocaleHome({ params }: { params: Promise<{ locale: string }> }) {
  const {locale}=await params;
  if(!isLocale(locale)) notFound();
- return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'Organization',name:'PCPUMP.COM',url:`${baseUrl}/${locale}`,email:'sales@pcpump.com'})}}/><PcpHome locale={locale}/></>;
+ return <><script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript({'@context':'https://schema.org','@type':'WebSite',name:'PCPUMP.COM',url:`${baseUrl}/${locale}`,publisher:{'@id':organizationId}})}/><PcpHome locale={locale}/></>;
 }

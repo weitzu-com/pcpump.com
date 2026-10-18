@@ -8,10 +8,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactBand } from "@/components/contact-band";
+import { baseUrl, jsonLdScript, localizedSeo, organizationId } from "@/lib/seo";
+import { pcpProductListJsonLd } from "@/lib/pcp-jsonld";
 import { getPage, isLocale, locales, localizePage, pages, type Locale, ui } from "@/lib/site-content";
 
 export const dynamicParams = false;
-const baseUrl = "https://www.pcpump.com";
 
 const homeLabels: Record<Locale, string> = { en: "Home", es: "Inicio", ru: "Главная" };
 
@@ -23,10 +24,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale, slug } = await params;
   const page = getPage(slug);
   if (!isLocale(locale)) return {};
-  const searchSlug=locale==='en'&&slug==='request-quote'?'engineering-inquiry':locale==='en'&&slug==='progressive-cavity-pumps'?'pcp-systems':slug;
+  // /en/progressive-cavity-pumps renders the PCP system page and canonicalizes to it.
+  // /en/request-quote keeps its own self-referencing canonical (it is a distinct indexed URL with ES/RU equivalents).
+  const searchSlug=locale==='en'&&slug==='progressive-cavity-pumps'?'pcp-systems':slug;
   if(pcpSearchMeta[searchSlug]){
     const meta=pcpSearchMeta[searchSlug],url=`${baseUrl}/${locale}/${searchSlug}`;
-    return {title:meta.title,description:meta.description,alternates:{canonical:url,languages:{en:`${baseUrl}/en/${searchSlug}`,es:`${baseUrl}/es/${searchSlug}`,ru:`${baseUrl}/ru/${searchSlug}`,'x-default':`${baseUrl}/en/${searchSlug}`}},openGraph:{title:`${meta.title} | PCPUMP.COM`,description:meta.description,url,siteName:'PCPUMP.COM',type:'website',images:[{url:pcpShareImage,alt:'PCPUMP technical reference and artificial lift equipment'}]},twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP.COM`,description:meta.description,images:[pcpShareImage]}};
+    return {title:meta.title,description:meta.description,...localizedSeo(locale,searchSlug),openGraph:{title:`${meta.title} | PCPUMP.COM`,description:meta.description,url,siteName:'PCPUMP.COM',type:'website',images:[{url:pcpShareImage,alt:'PCPUMP technical reference and artificial lift equipment'}]},twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP.COM`,description:meta.description,images:[pcpShareImage]}};
   }
   if (!page) return {};
   const content = localizePage(page, locale);
@@ -34,15 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: content.title,
     description: content.meta,
-    alternates: {
-      canonical: `${baseUrl}${path}`,
-      languages: {
-        en: `${baseUrl}/en/${slug}`,
-        es: `${baseUrl}/es/${slug}`,
-        ru: `${baseUrl}/ru/${slug}`,
-        "x-default": `${baseUrl}/en/${slug}`,
-      },
-    },
+    ...localizedSeo(locale, slug),
     openGraph: { title: `${content.title} | PCPUMP.COM`, description: content.meta, url: `${baseUrl}${path}`, locale, images: [{ url: content.image }] },
     twitter: { card: "summary_large_image", title: `${content.title} | PCPUMP.COM`, description: content.meta, images: [content.image] },
   };
@@ -55,7 +50,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
   if(slug==='technical-resources')return <PcpResources locale={locale}/>;
   if (locale === "en" && ["pcp-systems", "progressive-cavity-pumps"].includes(slug)) return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({"@context":"https://schema.org","@type":"WebPage",name:"PCP systems",url:`${baseUrl}/en/${slug}`})}}/><div className="engineering eng-container"><PcpSteps locale={locale} current="pcp-systems"/></div><PcpSystem inquiryPath="/en/engineering-inquiry" /></>;
   if (locale === "en" && slug === "request-quote") return <PcpPage locale={locale} slug="engineering-inquiry"/>;
-  if (pcpTitles[slug]) return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:pcpTitles[slug],url:`${baseUrl}/${locale}/${slug}`})}}/><PcpPage locale={locale} slug={slug}/></>;
+  if (pcpTitles[slug]) { const products=pcpProductListJsonLd(slug,`${baseUrl}/${locale}/${slug}`); return <><script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript({'@context':'https://schema.org','@type':'WebPage',name:pcpTitles[slug],url:`${baseUrl}/${locale}/${slug}`,publisher:{'@id':organizationId}})}/>{products&&<script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(products)}/>}<PcpPage locale={locale} slug={slug}/></>; }
   if (!page) notFound();
   const content = localizePage(page, locale);
   const copy = ui[locale];
@@ -76,7 +71,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
     "@type": "Service",
     name: content.title,
     description: content.meta,
-    provider: { "@type": "Organization", name: "PCPUMP.COM", email: "sales@pcpump.com" },
+    provider: { "@id": organizationId },
     areaServed: "Worldwide",
   } : {
     "@type": "Product",

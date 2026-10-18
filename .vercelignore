@@ -2,5 +2,9 @@
 .next
 .vercel
 node_modules
+deliverables
+operations
+scripts
+*.md
 .env*
 山东高原油气公司英文宣传册202407.pdf

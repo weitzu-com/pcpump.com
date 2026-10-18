@@ -42,3 +42,5 @@ next-env.d.ts
 
 # source material (local reference, not part of the website repository)
 /山东高原油气公司英文宣传册202407.pdf
+
+/.local-inquiries/

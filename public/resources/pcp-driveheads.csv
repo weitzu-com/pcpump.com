@@ -1,0 +1,24 @@
+model,type,speed_rpm,torque_nm,power_kw,axial_load_with_unit,source_pdf_page,note
+GBF6,GBF,50–260,1500,7.5–22,60 kN,12,Reference brochure transcription; technical review required; no system performance guarantee.
+GBF2,GBF,120–500,2000,11–37,100 kN,12,Reference brochure transcription; technical review required; no system performance guarantee.
+GBF5Y,GBF,60–320,2500,11–37,150 kN,12,Reference brochure transcription; technical review required; no system performance guarantee.
+GBF5D,GBF,50–300,3000,22–55,200 kN,12,Reference brochure transcription; technical review required; no system performance guarantee.
+VED2000,VED,To be confirmed,2000,To be confirmed,12 t,13,Reference brochure transcription; technical review required; no system performance guarantee.
+VED2700,VED,To be confirmed,2700,To be confirmed,19 / 30 t,13,Reference brochure transcription; technical review required; no system performance guarantee.
+VED2700D,VED,To be confirmed,2700,To be confirmed,19 / 30 t,13,Reference brochure transcription; technical review required; no system performance guarantee.
+VED5000D,VED,To be confirmed,5000,To be confirmed,30 t,13,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM10-450,PMM,450,1000,47.1,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM12-450,PMM,450,1200,56.5,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM16-450,PMM,450,1600,75.4,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM20-450,PMM,450,2000,94.2,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM24-450,PMM,450,2400,113.1,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM27-450,PMM,450,2700,127.2,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM35-450,PMM,450,3500,164.9,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM40-450,PMM,450,4000,188.5,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM10-300,PMM,300,1000,31.4,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM12-300,PMM,300,1200,37.7,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM16-300,PMM,300,1600,50.3,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM20-300,PMM,300,2000,62.8,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM24-300,PMM,300,2400,75.4,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM27-300,PMM,300,2700,84.8,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.
+PMM35-300,PMM,300,3500,109.9,Confirm model-specific configuration against source PDF page 14,14,Reference brochure transcription; technical review required; no system performance guarantee.

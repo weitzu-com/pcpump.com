@@ -1,0 +1,9 @@
+model,brochure_material_working_temp_c,brochure_material_max_temp_c,description,note,source_pdf_page
+GY-1,80,90,Water-cut oil with small solid content; CO₂ exposure needs assessment.,Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-2,100,120,Light oil with aromatic compounds; wear resistance is an evaluation factor.,Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-3,80,90,"High solids, sand and water-cut service; particle conditions must be supplied.",Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-4,120,130,"Aromatic compounds, CO₂, water and small amounts of H₂S; concentration limits need review.",Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-5,150,170,Aromatic compounds and acid-gas exposure; swelling and mechanical properties need review.,Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-P,80,90,Coal-seam water; evaluate actual water chemistry and wear conditions.,Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-A,120,130,High-temperature and chemical exposure; mechanical-property trade-offs need review.,Reference brochure transcription; technical review required; no system performance guarantee.,10
+GY-F,180,200,"High-temperature chemical service; these are material figures, not system ratings.",Reference brochure transcription; technical review required; no system performance guarantee.,10

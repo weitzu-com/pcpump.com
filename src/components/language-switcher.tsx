@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { localeNames, locales, type Locale } from "@/lib/site-content";
+import { switcherHref } from "@/lib/seo";
 
 export function LanguageSwitcher({ locale }: { locale: Locale }) {
   const pathname = usePathname();
@@ -17,7 +18,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
 
         return (
           <Link
-            href={`/${nextSegments.join("/")}`}
+            href={switcherHref(pathname, nextSegments[0], nextSegments.slice(1).join("/"))}
             hrefLang={nextLocale}
             key={nextLocale}
             aria-current={nextLocale === locale ? "page" : undefined}

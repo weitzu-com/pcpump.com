@@ -23,8 +23,50 @@ export function isIndexable(locale: Locale, slug = "") {
   return locale === "en" || !untranslatedSlugs.has(slug);
 }
 
-/** hreflang alternates: only locales whose version is genuinely localized. */
-export function languageAlternates(slug = ""): Record<string, string> | undefined {
+/**
+ * PCP overview topic ("progressive cavity pump" / "PCP pump"): one canonical owner per locale.
+ * EN owner is /en/pcp-systems (/en/progressive-cavity-pumps 308-redirects there, see next.config.ts).
+ * ES/RU owners are the translated /es|ru/progressive-cavity-pumps pages; /es|ru/pcp-systems are
+ * untranslated (noindex) and stay out of the cluster.
+ */
+/** Cross-slug hreflang clusters (paths without host). hreflang output and the language switcher both use these. */
+const crossSlugClusters: Record<string, string>[] = [
+  { en: "/en/pcp-systems", es: "/es/progressive-cavity-pumps", ru: "/ru/progressive-cavity-pumps" },
+];
+const pcpOverviewCluster = {
+  en: `${baseUrl}${crossSlugClusters[0].en}`,
+  es: `${baseUrl}${crossSlugClusters[0].es}`,
+  ru: `${baseUrl}${crossSlugClusters[0].ru}`,
+  "x-default": `${baseUrl}${crossSlugClusters[0].en}`,
+};
+
+/** Routes that permanently redirect elsewhere: never rendered as indexable, never in the sitemap. */
+export const redirectedRoutes: Record<string, string> = {
+  "/en/progressive-cavity-pumps": "/en/pcp-systems",
+};
+
+export function isRedirected(locale: Locale, slug = "") {
+  return `/${locale}${slug ? `/${slug}` : ""}` in redirectedRoutes;
+}
+
+/** Language-switcher target: the cluster sibling when the current page is in a cross-slug cluster. */
+export function switcherHref(currentPath: string, targetLocale: Locale | string, slug = "") {
+  const path = currentPath.replace(/\/+$/, "") || "/";
+  const cluster = crossSlugClusters.find((c) => Object.values(c).includes(path));
+  if (cluster?.[targetLocale]) return cluster[targetLocale];
+  return localHref(targetLocale, slug);
+}
+
+/** Internal href that never points at a redirecting URL. */
+export function localHref(locale: Locale | string, slug = "") {
+  const path = `/${locale}${slug ? `/${slug}` : ""}`;
+  return redirectedRoutes[path] ?? path;
+}
+
+/** hreflang alternates: only self-canonical, indexable, genuinely localized versions. */
+export function languageAlternates(locale: Locale, slug = ""): Record<string, string> | undefined {
+  if ((locale === "en" && slug === "pcp-systems") || (locale !== "en" && slug === "progressive-cavity-pumps")) return pcpOverviewCluster;
+  if (slug === "progressive-cavity-pumps" || slug === "pcp-systems") return undefined;
   const suffix = slug ? `/${slug}` : "";
   if (untranslatedSlugs.has(slug)) return undefined; // English only: no cluster to declare
   return {
@@ -39,7 +81,7 @@ export function languageAlternates(slug = ""): Record<string, string> | undefine
 export function localizedSeo(locale: Locale, slug = ""): Pick<Metadata, "alternates" | "robots"> {
   const suffix = slug ? `/${slug}` : "";
   const indexable = isIndexable(locale, slug);
-  const languages = indexable ? languageAlternates(slug) : undefined;
+  const languages = indexable ? languageAlternates(locale, slug) : undefined;
   return {
     alternates: { canonical: `${baseUrl}/${locale}${suffix}`, ...(languages ? { languages } : {}) },
     ...(indexable ? {} : { robots: { index: false, follow: true } }),

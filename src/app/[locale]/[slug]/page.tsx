@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactBand } from "@/components/contact-band";
-import { baseUrl, jsonLdScript, localizedSeo, organizationId } from "@/lib/seo";
+import { baseUrl, isRedirected, jsonLdScript, localHref, localizedSeo, organizationId } from "@/lib/seo";
 import { pcpProductListJsonLd } from "@/lib/pcp-jsonld";
 import { getPage, isLocale, locales, localizePage, pages, type Locale, ui } from "@/lib/site-content";
 
@@ -17,16 +17,16 @@ export const dynamicParams = false;
 const homeLabels: Record<Locale, string> = { en: "Home", es: "Inicio", ru: "Главная" };
 
 export function generateStaticParams() {
-  return locales.flatMap((locale) => [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])].map(slug => ({locale,slug})));
+  return locales.flatMap((locale) => [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])].filter(slug=>!isRedirected(locale,slug)).map(slug => ({locale,slug})));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
   const page = getPage(slug);
   if (!isLocale(locale)) return {};
-  // /en/progressive-cavity-pumps renders the PCP system page and canonicalizes to it.
+  // /en/progressive-cavity-pumps 308-redirects to /en/pcp-systems (next.config.ts); no metadata of its own.
   // /en/request-quote keeps its own self-referencing canonical (it is a distinct indexed URL with ES/RU equivalents).
-  const searchSlug=locale==='en'&&slug==='progressive-cavity-pumps'?'pcp-systems':slug;
+  const searchSlug=slug;
   if(pcpSearchMeta[searchSlug]){
     const meta=pcpSearchMeta[searchSlug],url=`${baseUrl}/${locale}/${searchSlug}`;
     return {title:meta.title,description:meta.description,...localizedSeo(locale,searchSlug),openGraph:{title:`${meta.title} | PCPUMP.COM`,description:meta.description,url,siteName:'PCPUMP.COM',type:'website',images:[{url:pcpShareImage,alt:'PCPUMP technical reference and artificial lift equipment'}]},twitter:{card:'summary_large_image',title:`${meta.title} | PCPUMP.COM`,description:meta.description,images:[pcpShareImage]}};
@@ -48,7 +48,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
   const page = getPage(slug);
   if (!isLocale(locale)) notFound();
   if(slug==='technical-resources')return <PcpResources locale={locale}/>;
-  if (locale === "en" && ["pcp-systems", "progressive-cavity-pumps"].includes(slug)) return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({"@context":"https://schema.org","@type":"WebPage",name:"PCP systems",url:`${baseUrl}/en/${slug}`})}}/><div className="engineering eng-container"><PcpSteps locale={locale} current="pcp-systems"/></div><PcpSystem inquiryPath="/en/engineering-inquiry" /></>;
+  if (locale === "en" && slug === "pcp-systems") return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({"@context":"https://schema.org","@type":"WebPage",name:"PCP systems",url:`${baseUrl}/en/${slug}`})}}/><div className="engineering eng-container"><PcpSteps locale={locale} current="pcp-systems"/></div><PcpSystem inquiryPath="/en/engineering-inquiry" /></>;
   if (locale === "en" && slug === "request-quote") return <PcpPage locale={locale} slug="engineering-inquiry"/>;
   if (pcpTitles[slug]) { const products=pcpProductListJsonLd(slug,`${baseUrl}/${locale}/${slug}`); return <><script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript({'@context':'https://schema.org','@type':'WebPage',name:pcpTitles[slug],url:`${baseUrl}/${locale}/${slug}`,publisher:{'@id':organizationId}})}/>{products&&<script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(products)}/>}<PcpPage locale={locale} slug={slug}/></>; }
   if (!page) notFound();
@@ -144,7 +144,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
           {related.map((candidate) => {
             const item = localizePage(candidate, locale);
             return (
-              <Link href={`/${locale}/${candidate.slug}`} key={candidate.slug}>
+              <Link href={localHref(locale, candidate.slug)} key={candidate.slug}>
                 <div className="related-image"><Image src={item.image} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" /></div>
                 <h3>{item.title}</h3><span aria-hidden="true">↗</span>
               </Link>

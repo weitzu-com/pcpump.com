@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { localeNames, locales, type Locale, ui } from "@/lib/site-content";
+import { type Locale } from "@/lib/locales";
+import { uiCopy } from "@/lib/site-content";
 
 export function SiteFooter({ locale }: { locale: Locale }) {
-  const copy = ui[locale];
+  const copy = uiCopy(locale);
 
   return (
     <footer className="site-footer">
@@ -17,9 +18,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         <a className="footer-email" href="mailto:sales@pcpump.com">sales@pcpump.com</a>
       </div>
       <div>
-        <p className="footer-label">{copy.language}</p>
+        <p className="footer-label">{copy.privacy}</p>
         <div className="footer-links">
-          {locales.map((item) => <Link href={`/${item}`} key={item}>{localeNames[item]}</Link>)}
           <Link href={`/${locale}/privacy`}>{copy.privacy}</Link>
         </div>
       </div>

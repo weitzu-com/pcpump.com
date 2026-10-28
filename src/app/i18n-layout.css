@@ -1,0 +1,282 @@
+/**
+ * pcpump.com · Batch 0b · i18n layout starter
+ * Date: 2026-10-28 (Asia/Shanghai)
+ *
+ * PASTE / ADAPT into the real stylesheet or CSS module.
+ * NOT production-final — tokens, selectors, and cascade must be wired
+ * to the live Next.js classes (.site-header, .language-switcher, …).
+ *
+ * Companion specs:
+ *   01-rtl-ar.md  02-language-switcher.md  03-long-word-stress.md
+ *   04-font-stack.md  05-tokens-and-hint.md
+ */
+
+/* -------------------------------------------------------------------------- */
+/* 0. Tokens                                                                  */
+/* -------------------------------------------------------------------------- */
+:root {
+  --pcp-steel: #1d3039;
+  --pcp-navy: #233c47;
+  --pcp-orange: #c35c25;
+  --pcp-grid: #d6dfe2;
+  --pcp-ground: #f4f7f7;
+  --pcp-white: #ffffff;
+
+  --pcp-hint-bg: #eef3f5;
+  --pcp-hint-ink: #1d3039;
+  --pcp-hint-muted: #5a7079;
+  --pcp-hint-border: #d6dfe2;
+  --pcp-focus-ring: #c35c25;
+
+  --pcp-switcher-bg: #ffffff;
+  --pcp-switcher-hover: rgba(35, 60, 71, 0.06);
+  --pcp-switcher-shadow: 0 8px 24px rgba(29, 48, 57, 0.12);
+
+  --pcp-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --pcp-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+html[lang="ar"] {
+  --pcp-font-sans: "Noto Sans Arabic", "Noto Naskh Arabic", "Segoe UI", Tahoma,
+    Arial, sans-serif;
+}
+
+html[lang="zh-Hans"],
+html[lang="zh-CN"],
+html[lang="zh"] {
+  --pcp-font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    "Noto Sans CJK SC", system-ui, sans-serif;
+}
+
+html[lang]:not([lang="en"]) body {
+  font-family: var(--pcp-font-sans);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 1. Logical-property hygiene (new i18n CSS — ban physical left/right)       */
+/* -------------------------------------------------------------------------- */
+/*
+  Prefer:
+    margin-inline-start / end
+    padding-inline-start / end
+    inset-inline-start / end
+    border-inline-start / end
+    text-align: start | end
+  Do not add margin-left/right etc. in new Batch 0b rules.
+*/
+
+/* Live .site-header stays on the existing grid; do not force flex here in Batch0. */
+
+/* -------------------------------------------------------------------------- */
+/* 2. RTL mirrors                                                             */
+/* -------------------------------------------------------------------------- */
+html[dir="rtl"] {
+  letter-spacing: normal;
+}
+
+/* Directional CTA glyphs: mirror with a dedicated span */
+html[dir="rtl"] .dir-arrow {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* PCP principle SVG / particle layer — flip flow, not Latin letterforms */
+html[dir="rtl"] .pump-visual .flow-layer,
+html[dir="rtl"] .pump-visual .fluid-particle-layer {
+  transform: scaleX(-1);
+  transform-origin: center;
+}
+
+/* If labels sit inside the flipped group, counter-flip them */
+html[dir="rtl"] .pump-visual .svg-label {
+  transform: scaleX(-1);
+}
+
+/* Hero two-column: rely on dir=rtl + grid/flex; avoid hard-coded left/right */
+/* Hero / pcp-steps layout stays in existing stylesheets; RTL inherits via html[dir]. */
+
+/* -------------------------------------------------------------------------- */
+/* 3. Bidi isolate — emails, phones, model codes, Latin SKUs                  */
+/* -------------------------------------------------------------------------- */
+.ltr-isolate {
+  unicode-bidi: isolate;
+  direction: ltr;
+  display: inline-block;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 4. Language switcher                                                       */
+/* -------------------------------------------------------------------------- */
+.language-switcher {
+  position: relative;
+}
+
+.language-switcher .lang-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--pcp-steel);
+  background: var(--pcp-white);
+  border: 1px solid var(--pcp-grid);
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.language-switcher .lang-button:focus-visible {
+  outline: 2px solid var(--pcp-focus-ring);
+  outline-offset: 2px;
+}
+
+.language-switcher .lang-button[aria-expanded="true"] {
+  border-color: var(--pcp-steel);
+}
+
+.language-switcher .lang-list {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 6px);
+  min-width: 13.75rem;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  background: var(--pcp-switcher-bg);
+  border: 1px solid var(--pcp-grid);
+  box-shadow: var(--pcp-switcher-shadow);
+  z-index: 40;
+}
+
+.language-switcher .lang-list a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  color: var(--pcp-steel);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.language-switcher .lang-list a:hover,
+.language-switcher .lang-list a:focus {
+  background: var(--pcp-switcher-hover);
+  outline: none;
+}
+
+.language-switcher .lang-list a[aria-current="true"] {
+  font-weight: 700;
+}
+
+/* Mobile: place switcher near bottom of Menu — structure is HTML responsibility.
+   Ensure tap targets ≥ 44px in the drawer. */
+.mobile-menu .language-switcher {
+  margin-block-start: 1rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--pcp-grid);
+}
+
+.mobile-menu .language-switcher .lang-button,
+.mobile-menu .language-switcher .lang-list a {
+  min-height: 44px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. Missing-translation hint (quiet, non-alarm)                             */
+/* -------------------------------------------------------------------------- */
+.i18n-hint {
+  background: var(--pcp-hint-bg);
+  color: var(--pcp-hint-ink);
+  border-block-end: 1px solid var(--pcp-hint-border);
+  padding-block: 0.55rem;
+  padding-inline: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.i18n-hint a {
+  color: var(--pcp-steel);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.i18n-hint a:hover {
+  color: var(--pcp-orange);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 6. Long-word stress — RU (P0) + DE (stress / P2)                           */
+/* -------------------------------------------------------------------------- */
+.primary-nav a,
+.header-cta,
+.button {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.25;
+}
+
+:lang(ru) h1,
+:lang(ru) h2,
+:lang(ru) h3,
+:lang(ru) .primary-nav a,
+:lang(ru) .header-cta,
+:lang(ru) .button,
+:lang(de) h1,
+:lang(de) h2,
+:lang(de) h3,
+:lang(de) .primary-nav a,
+:lang(de) .header-cta,
+:lang(de) .button {
+  letter-spacing: normal;
+}
+
+:lang(ru) h1,
+:lang(ru) h2,
+:lang(ru) h3 {
+  letter-spacing: 0.015em; /* optional micro-positive for Cyrillic display */
+}
+
+:lang(de) .primary-nav a,
+:lang(de) .header-cta,
+:lang(de) .button {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+:lang(ru) .primary-nav a,
+:lang(ru) .header-cta,
+:lang(ru) .button {
+  hyphens: manual;
+  overflow-wrap: normal;
+}
+
+:lang(ar) h1,
+:lang(ar) h2,
+:lang(ar) h3,
+:lang(zh-Hans) h1,
+:lang(zh-Hans) h2,
+:lang(zh-Hans) h3,
+:lang(zh) h1,
+:lang(zh) h2,
+:lang(zh) h3 {
+  letter-spacing: normal;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 7. Eyebrow / mono — body never mono                                        */
+/* -------------------------------------------------------------------------- */
+.eyebrow,
+.visual-meta {
+  font-family: var(--pcp-font-mono);
+}
+
+html[lang]:not([lang="en"]) body,
+html[lang]:not([lang="en"]) p,
+html[lang]:not([lang="en"]) li,
+html[lang]:not([lang="en"]) .primary-nav,
+html[lang]:not([lang="en"]) .button,
+html[lang]:not([lang="en"]) .header-cta {
+  font-family: var(--pcp-font-sans);
+}

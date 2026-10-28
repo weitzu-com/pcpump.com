@@ -1,7 +1,20 @@
-export const locales = ["en", "es", "ru"] as const;
-export type Locale = (typeof locales)[number];
+import {
+  contentLocales,
+  isLocale,
+  localeNames,
+  locales,
+  type ContentLocale,
+  type Locale,
+} from "@/lib/locales";
 
-export type Localized = Record<Locale, string>;
+export { isLocale, localeNames, locales, type Locale };
+export type { ContentLocale };
+
+/**
+ * Human-authored strings keyed by locale. English is required; other locales optional.
+ * Shell locales fall back to English via pickLocalized — never invent machine translations here.
+ */
+export type Localized = { en: string } & Partial<Record<Locale, string>>;
 
 export type PageSeed = {
   slug: string;
@@ -18,11 +31,9 @@ export type PageSeed = {
 
 const t = (en: string, es: string, ru: string): Localized => ({ en, es, ru });
 
-export const localeNames: Record<Locale, string> = {
-  en: "English",
-  es: "Español",
-  ru: "Русский",
-};
+export function pickLocalized(value: Localized, locale: Locale): string {
+  return value[locale] ?? value.en;
+}
 
 export const ui = {
   en: {
@@ -478,23 +489,39 @@ export const pages: PageSeed[] = [
   },
 ];
 
-export function isLocale(value: string): value is Locale {
-  return locales.includes(value as Locale);
-}
-
 export function getPage(slug: string) {
   return pages.find((page) => page.slug === slug);
+}
+
+export type UiCopy = {
+  [K in keyof (typeof ui)["en"]]: (typeof ui)["en"][K] extends readonly string[]
+    ? readonly string[]
+    : string;
+};
+
+/** UI chrome copy with English fallback for shell/pending locales. */
+export function uiCopy(locale: Locale): UiCopy {
+  if ((contentLocales as readonly string[]).includes(locale)) {
+    return ui[locale as ContentLocale] as UiCopy;
+  }
+  return ui.en as UiCopy;
 }
 
 export function localizePage(page: PageSeed, locale: Locale) {
   return {
     ...page,
-    title: page.title[locale],
-    meta: page.meta[locale],
-    intro: page.intro[locale],
-    bullets: page.bullets.map((item) => item[locale]),
-    facts: page.facts.map((item) => ({ label: item.label[locale], value: item.value })),
-    application: page.application[locale],
-    selection: page.selection[locale],
+    title: pickLocalized(page.title, locale),
+    meta: pickLocalized(page.meta, locale),
+    intro: pickLocalized(page.intro, locale),
+    bullets: page.bullets.map((item) => pickLocalized(item, locale)),
+    facts: page.facts.map((item) => ({ label: pickLocalized(item.label, locale), value: item.value })),
+    application: pickLocalized(page.application, locale),
+    selection: pickLocalized(page.selection, locale),
   };
+}
+
+/** True when page seed body for this locale falls back to English (shell / pending). */
+export function isPageSeedPending(page: PageSeed, locale: Locale): boolean {
+  if (locale === "en") return false;
+  return page.title[locale] === undefined;
 }

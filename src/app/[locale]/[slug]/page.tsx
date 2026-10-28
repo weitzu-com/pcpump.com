@@ -10,11 +10,13 @@ import { notFound } from "next/navigation";
 import { ContactBand } from "@/components/contact-band";
 import { baseUrl, isRedirected, jsonLdScript, localHref, localizedSeo, organizationId } from "@/lib/seo";
 import { pcpProductListJsonLd } from "@/lib/pcp-jsonld";
-import { getPage, isLocale, locales, localizePage, pages, type Locale, ui } from "@/lib/site-content";
+import { isLocale, locales, type Locale } from "@/lib/locales";
+import { getPage, localizePage, pages, uiCopy } from "@/lib/site-content";
 
 export const dynamicParams = false;
 
-const homeLabels: Record<Locale, string> = { en: "Home", es: "Inicio", ru: "Главная" };
+const homeLabels: Partial<Record<Locale, string>> & { en: string } = { en: "Home", es: "Inicio", ru: "Главная" };
+function homeLabel(locale: Locale) { return homeLabels[locale] ?? homeLabels.en; }
 
 export function generateStaticParams() {
   return locales.flatMap((locale) => [...new Set([...pages.map(p=>p.slug),...pcpSlugs,'technical-resources'])].filter(slug=>!isRedirected(locale,slug)).map(slug => ({locale,slug})));
@@ -53,7 +55,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
   if (pcpTitles[slug]) { const products=pcpProductListJsonLd(slug,`${baseUrl}/${locale}/${slug}`); return <><script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript({'@context':'https://schema.org','@type':'WebPage',name:pcpTitles[slug],url:`${baseUrl}/${locale}/${slug}`,publisher:{'@id':organizationId}})}/>{products&&<script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(products)}/>}<PcpPage locale={locale} slug={slug}/></>; }
   if (!page) notFound();
   const content = localizePage(page, locale);
-  const copy = ui[locale];
+  const copy = uiCopy(locale);
   const related = pages.filter((candidate) => candidate.section === page.section && candidate.slug !== page.slug).slice(0, 3);
   if (related.length < 3) {
     related.push(...pages.filter((candidate) => candidate.slug !== page.slug && !related.includes(candidate)).slice(0, 3 - related.length));
@@ -88,7 +90,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: homeLabels[locale], item: `${baseUrl}/${locale}` },
+          { "@type": "ListItem", position: 1, name: homeLabel(locale), item: `${baseUrl}/${locale}` },
           { "@type": "ListItem", position: 2, name: content.title, item: pageUrl },
         ],
       },
@@ -99,7 +101,7 @@ export default async function DetailPage({ params }: { params: Promise<{ locale:
     <main id="main-content" tabIndex={-1}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <div className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href={`/${locale}`}>{homeLabels[locale]}</Link><span>/</span><span aria-current="page">{content.title}</span>
+        <Link href={`/${locale}`}>{homeLabel(locale)}</Link><span>/</span><span aria-current="page">{content.title}</span>
       </div>
       <section className="page-hero">
         <div className="page-hero-copy">

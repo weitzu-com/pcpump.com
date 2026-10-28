@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SiteEventTracker } from "@/components/site-event-tracker";
-import {pcpShareImage} from '@/lib/pcp-metadata';
-import { isLocale, locales } from "@/lib/site-content";
+import { I18nPendingHint } from "@/components/i18n-pending-hint";
+import { pcpShareImage } from "@/lib/pcp-metadata";
+import { htmlLang, isLocale, localeDir, locales, type Locale } from "@/lib/locales";
 import { jsonLdScript, organizationJsonLd } from "@/lib/seo";
 import "@/app/globals.css";
 import "@/app/engineering.css";
+import "@/app/i18n-layout.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pcpump.com"),
@@ -37,14 +39,17 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-  if (!isLocale(locale)) notFound();
+  const { locale: raw } = await params;
+  if (!isLocale(raw)) notFound();
+  const locale = raw as Locale;
 
   return (
-    <html lang={locale}>
+    <html lang={htmlLang(locale)} dir={localeDir(locale)}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(organizationJsonLd)} />
+        <div id="language" tabIndex={-1} />
         <SiteHeader locale={locale} />
+        <I18nPendingHint locale={locale} />
         <SiteEventTracker enabled={Boolean(process.env.INQUIRY_RECEIVER_URL)} />
         {children}
         <SiteFooter locale={locale} />

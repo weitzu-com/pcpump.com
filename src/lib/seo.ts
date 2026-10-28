@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   hreflangCode,
-  isContentLocale,
   type Locale,
   locales,
 } from "@/lib/locales";
@@ -9,12 +8,10 @@ import {
 export const baseUrl = "https://www.pcpump.com";
 
 /**
- * Routes whose ES/RU versions still render English body copy (checked against the
- * built pages on 2026-10-18). Until a reviewed translation exists, those versions
- * stay out of the sitemap and hreflang clusters and are served noindex,follow.
- *
- * Batch0: shell locales outside en/es/ru are never indexable until human-accepted.
- * Existing es/ru English-body pages remain in this set (and homes below).
+ * Historical note (Batch0/Batch1): ES/RU routes that still rendered English body
+ * copy as of 2026-10-18. Indexability is no longer derived from this set —
+ * only `humanAccepted` (plus English) gates sitemap/robots/hreflang via
+ * isIndexable. Kept for Batch1 translation prioritization.
  */
 export const untranslatedSlugs = new Set<string>([
   "pcp-systems",
@@ -26,29 +23,23 @@ export const untranslatedSlugs = new Set<string>([
 ]);
 
 /**
- * Locale home pages kept noindex and out of the home hreflang cluster.
- * Batch0: es/ru homes still serve English PCP shell body → noindex until Batch1.
- * All non-content (shell) locales are also non-indexable via isIndexable.
+ * Historical note: es/ru homes that served English PCP shell body.
+ * Indexability is gated solely by humanAccepted (empty → English only).
  */
 export const untranslatedHomeLocales = new Set<string>(["es", "ru"]);
 
 /**
- * Explicit human-accepted locale+slug pairs for locales outside the legacy
- * en/es/ru content set. Format: `${locale}:${slug}` (slug "" for home).
- * Batch0: empty — new registry locales stay noindex until Batch1+.
- * fa remains noindex until the compliance gate regardless.
+ * Explicit human-accepted locale+slug pairs. Format: `${locale}:${slug}`
+ * (slug "" for home). Empty after Batch0 — only English is indexable until
+ * Batch1+ adds reviewed pairs. fa stays out until the compliance gate.
+ * Sitemap, robots (localizedSeo), and hreflang all share isIndexable → this set.
  */
 export const humanAccepted = new Set<string>([]);
 
+/** True only for English or an explicit humanAccepted locale+slug pair. */
 export function isHumanAccepted(locale: Locale, slug = ""): boolean {
   if (locale === "en") return true;
-  if (humanAccepted.has(`${locale}:${slug}`)) return true;
-  // Legacy: es/ru PageSeed routes that are not English-body shells count as accepted.
-  if (isContentLocale(locale)) {
-    if (slug === "") return !untranslatedHomeLocales.has(locale);
-    return !untranslatedSlugs.has(slug);
-  }
-  return false;
+  return humanAccepted.has(`${locale}:${slug}`);
 }
 
 export function isIndexable(locale: Locale, slug = "") {
@@ -67,9 +58,8 @@ export function isPendingLocalePage(locale: Locale, slug = ""): boolean {
 
 /**
  * PCP overview topic: EN owner is /en/pcp-systems.
- * ES/RU /progressive-cavity-pumps stay routable; Batch0 noindexes English-body
- * siblings (pcp-systems on es/ru) via untranslatedSlugs. progressive-cavity-pumps
- * retains prior PageSeed translations and stays indexable for es/ru.
+ * ES/RU /progressive-cavity-pumps stay routable as shells but are noindex and
+ * out of sitemap/hreflang until explicitly listed in humanAccepted (Batch1+).
  */
 const crossSlugClusters: Record<string, string>[] = [
   { en: "/en/pcp-systems", es: "/es/progressive-cavity-pumps", ru: "/ru/progressive-cavity-pumps" },

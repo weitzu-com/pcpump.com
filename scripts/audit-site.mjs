@@ -14,8 +14,17 @@ const sitemapResponse = await fetch(`${base}/sitemap.xml`);
 assert.equal(sitemapResponse.status, 200, "Sitemap must return 200");
 const sitemap = await sitemapResponse.text();
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-assert.equal(urls.length, 102, "Sitemap must contain 34 pages in each of 3 languages");
-assert.equal(new Set(urls).size, 102, "Sitemap URLs must be unique");
+const byLocale = Object.create(null);
+for (const url of urls) {
+  const locale = url.replace(canonicalBase, "").split("/")[1];
+  byLocale[locale] = (byLocale[locale] ?? 0) + 1;
+}
+// Batch0+: sitemap mirrors isIndexable — empty humanAccepted ⇒ English only (no /es/* or /ru/*).
+assert.equal(byLocale.es ?? 0, 0, "Sitemap must not list /es/* until humanAccepted");
+assert.equal(byLocale.ru ?? 0, 0, "Sitemap must not list /ru/* until humanAccepted");
+assert.ok((byLocale.en ?? 0) > 0, "Sitemap must retain English URLs");
+assert.equal(urls.length, byLocale.en, "Sitemap must be English-only while humanAccepted is empty");
+assert.equal(new Set(urls).size, urls.length, "Sitemap URLs must be unique");
 
 const failures = [];
 for (const canonicalUrl of urls) {
